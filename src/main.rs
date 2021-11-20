@@ -10,22 +10,51 @@ struct Lotto {
 
 impl Lotto {
     fn new(take: usize, from: usize) -> Self {
-        todo!("Implement")
+        let rng = &mut thread_rng();
+        let mut numbers = (1..from+1).choose_multiple(rng, take);
+        numbers.sort_unstable();
+
+        Lotto { take, from, numbers }
     }
 
+    // get_numbers used by test
+    #[allow(dead_code)]
     fn get_numbers(self) -> Vec<usize> {
-        todo!("Implement")
+        self.numbers
     }
 }
 
 fn format_lotto_results(lotto: &Lotto) -> String {
-    // Tip: Use the format macro
-    todo!("Implement")
+    return format!("{} of {}: {:?}", lotto.take, lotto.from, lotto.numbers)
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    todo!("Implement CLI")
+    // ignore first arg as it is script name
+    let args_len = args.len() - 1;
+
+    if args_len < 2 {
+        println!("program must have be at least 2 args");
+        return
+    }
+
+    if args_len % 2 != 0 {
+        println!("program args must be multiple of 2");
+    } else {
+        for i in (1..args_len).step_by(2) {
+            let take: usize = args[i].parse().expect("Could not parse number");
+            let from: usize = args[i+1].parse().expect("Could not parse number");
+
+            if take > from {
+                println!("take must not be lower than from: {} !< {}", take, from);
+                return
+            }
+
+            let lotto = Lotto::new(take, from);
+
+            println!("{}", format_lotto_results(&lotto));
+        }
+    }
 }
 
 #[test]
